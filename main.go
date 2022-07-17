@@ -10,7 +10,8 @@ import (
 const PORT = "8000"
 
 func main() {
-	http.HandleFunc("/", handlers.RegisterUser)
+	http.HandleFunc("/registerUser", handlers.RegisterUser)
+	http.HandleFunc("/login", handlers.Login)
 
 	message := "Server started at http://localhost:" + PORT
 	log.Println(message)

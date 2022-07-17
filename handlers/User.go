@@ -12,11 +12,7 @@ import (
 )
 
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
-	bodyBytes, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Println("Could not parse request body")
-		return
-	}
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
 
 	var user models.User
 	json.Unmarshal(bodyBytes, &user)
@@ -29,5 +25,10 @@ func InitiateLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Inside Login handler")
+	bodyBytes, _ := ioutil.ReadAll(r.Body)
+
+	var currentUser models.User
+	json.Unmarshal(bodyBytes, &currentUser)
+	controllerResponse := controllers.Login(currentUser)
+	utils.SendResponse(w, controllerResponse)
 }

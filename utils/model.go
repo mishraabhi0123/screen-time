@@ -5,18 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/mishrabhi0123/screen-time/typedefs"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type ControllerResponse struct {
-	Success    bool   `json:"success"`
-	Message    string `json:"message"`
-	StatusCode int    `json:"statusCode"`
-	Data       any    `json:"data"`
-}
-
-func CreateControllerResponse(success bool, message string, statusCode int, data any) ControllerResponse {
-	res := ControllerResponse{success, message, statusCode, data}
+func CreateControllerResponse(success bool, message string, statusCode int, data any) typedefs.ControllerResponse {
+	var res typedefs.ControllerResponse
+	res.Success = success
+	res.Message = message
+	res.StatusCode = statusCode
+	res.Data = data
 	return res
 }
 
@@ -34,7 +32,7 @@ func ComparePassword(claimedPassword string, hashedPassword string) bool {
 	return err == nil
 }
 
-func SendResponse(w http.ResponseWriter, controllerResponse ControllerResponse) {
+func SendResponse(w http.ResponseWriter, controllerResponse typedefs.ControllerResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(controllerResponse.StatusCode)
 	jsonBytes, _ := json.Marshal(controllerResponse)
