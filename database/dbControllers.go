@@ -19,3 +19,8 @@ func CreateUser(user models.User) models.User {
 	Users[user.Email] = user
 	return user
 }
+
+func GetDevice(deviceId int) models.Device {
+	device := Devices[deviceId]
+	return device
+}
