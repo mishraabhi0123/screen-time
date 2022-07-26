@@ -20,7 +20,30 @@ func CreateUser(user models.User) models.User {
 	return user
 }
 
-func GetDevice(deviceId int) models.Device {
-	device := Devices[deviceId]
+func GetDevice(userId int, deviceName string) models.Device {
+	devices := Devices[userId]
+	foundDevice := models.Device{UserId: userId}
+
+	for _, device := range devices {
+		if device.Name == deviceName {
+			foundDevice = device
+			break
+		}
+	}
+
+	return foundDevice
+}
+
+func RegisterDevice(deviceName string, userId int) models.Device {
+	devices := Devices[userId]
+	device := models.Device{}
+
+	device.UserId = userId
+	device.Id = len(devices) + 1
+	device.CreatedAt = time.Now()
+	device.UpdatedAt = time.Now()
+
+	devices = append(devices, device)
+	Devices[device.UserId] = devices
 	return device
 }

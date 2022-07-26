@@ -20,10 +20,11 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	deviceName := r.Header.Get("x-device-name")
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
 
 	var currentUser models.User
 	json.Unmarshal(bodyBytes, &currentUser)
-	controllerResponse := controllers.Login(currentUser)
+	controllerResponse := controllers.Login(currentUser, deviceName)
 	utils.SendResponse(w, controllerResponse)
 }

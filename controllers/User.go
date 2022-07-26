@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"fmt"
-
 	"github.com/dgrijalva/jwt-go"
 	db "github.com/mishrabhi0123/screen-time/database"
 	"github.com/mishrabhi0123/screen-time/models"
@@ -10,43 +8,41 @@ import (
 	"github.com/mishrabhi0123/screen-time/utils"
 )
 
-func RegisterUser(user models.User) typedefs.ControllerResponse {
+func RegisterUser(user models.User) typedefs.AppResponse {
 	u := db.GetUser(user.Email)
 	if len(u.Email) != 0 {
-		return utils.CreateControllerResponse(false, "This email is already registered with us", 400, nil)
+		return utils.CreateResponse(false, "This email is already registered with us", 400, nil)
 	}
 	user.Password, _ = utils.EncryptPassword(user.Password)
 	user = db.CreateUser(user)
-	return utils.CreateControllerResponse(true, "Registration successful", 201, user)
+	return utils.CreateResponse(true, "Registration successful", 201, user)
 }
 
-func InitiateLogin() typedefs.ControllerResponse {
-	return utils.CreateControllerResponse(true, "Registration successful", 201, nil)
-}
-
-func Login(currentUser models.User) typedefs.ControllerResponse {
+func Login(currentUser models.User, deviceName string) typedefs.AppResponse {
 	dbUser := db.GetUser(currentUser.Email)
 	if len(dbUser.Email) == 0 {
-		return utils.CreateControllerResponse(false, "User not found", 404, nil)
+		return utils.CreateResponse(false, "User not found", 404, nil)
 	}
+
 	match := utils.ComparePassword(currentUser.Password, dbUser.Password)
 	if !match {
-		return utils.CreateControllerResponse(false, "Invalid Password", 400, nil)
+		return utils.CreateResponse(false, "Invalid Password", 400, nil)
+	}
+
+	device := db.GetDevice(dbUser.Id, deviceName)
+
+	if device.Name == "" {
+		device = db.RegisterDevice(deviceName, dbUser.Id)
 	}
 
 	tokenClaims := typedefs.TokenClaims{
 		Email:          dbUser.Email,
+		UserId:         dbUser.Id,
+		DeviceName:     device.Name,
 		StandardClaims: jwt.StandardClaims{},
 	}
-	// unsigned token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims)
-
-	// sign the token with a secret key
-	signedToken, err := token.SignedString([]byte("ashdjahsdj"))
-	if err != nil {
-		fmt.Println(err.Error())
-	}
+	signedToken := utils.CreateToken(tokenClaims)
 	data := typedefs.Token{}
 	data.Token = signedToken
-	return utils.CreateControllerResponse(true, "Logged in successfully", 200, data)
+	return utils.CreateResponse(true, "Logged in successfully", 200, data)
 }

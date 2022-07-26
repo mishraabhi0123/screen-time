@@ -6,10 +6,10 @@ import (
 	"github.com/mishrabhi0123/screen-time/utils"
 )
 
-func GetDevice(deviceId int) typedefs.ControllerResponse {
-	device := database.GetDevice(deviceId)
-	if device.Id != deviceId {
-		return utils.CreateControllerResponse(false, "Could not find any device with this id", 404, nil)
+func GetDevice(userId int, deviceName string) typedefs.AppResponse {
+	device := database.GetDevice(userId, deviceName)
+	if device.Id == 0 {
+		return utils.CreateResponse(false, "Could not find any device with this id", 404, nil)
 	}
-	return utils.CreateControllerResponse(true, "Device found", 200, device)
+	return utils.CreateResponse(true, "Device found", 200, device)
 }
